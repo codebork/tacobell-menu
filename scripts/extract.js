@@ -1,22 +1,25 @@
 const fs = require('fs');
 const PDFExtract = require('pdf.js-extract').PDFExtract;
 const pdfExtract = new PDFExtract();
-const filename = './tacobell-nutrition-allergy-19092017-1.pdf';
 
-class Menu {
-  constructor(filename) {
+class MenuParser {
+  constructor(input, output) {
     this.split = 460;
     this.allItems = {};
+    this.input = input;
+    this.output = output;
+    this.nextItemId = 1;
 
-    this.parseMenu(filename);
+    this.parseMenu();
   }
 
-  parseMenu(filename) {
-    pdfExtract.extract(filename, {}, (err, data) => {
-      if (err) return console.log(err);
+  parseMenu() {
+    pdfExtract.extract(this.input, {}, (err, data) => {
+      if (err) return console.error(err.message);
       var lines = PDFExtract.utils.pageToLines(data.pages[0], 2);
 
       this.parseRows(lines);
+      this.save(this.output);
     });
   }
 
@@ -26,24 +29,28 @@ class Menu {
     let itemsToIgnore = [
       'Extras',
       'Desserts',
-      'Kids'
+      'Kids',
+      'Cereal'
     ];
 
     rows.forEach(row => {
       var leftItem = row.filter(item => item.x < this.split).map(item => item.str);
       var rightItem = row.filter(item => item.x > this.split).map(item => item.str);
 
-      if(leftItem.length >= 9) {
+      if(leftItem.length >= 9 && !itemsToIgnore.includes(leftItem[0].trim())) {
         leftItems.push(this.createItem(leftItem))
       }
 
-      if(rightItem.length >= 9 && !itemsToIgnore.includes(rightItem[0])) {
+      if(rightItem.length >= 9 && !itemsToIgnore.includes(rightItem[0].trim())) {
         rightItems.push(this.createItem(rightItem));
       }
     });
 
     this.allItems = [...leftItems, ...rightItems];
-    this.save();
+  }
+
+  getItemId() {
+    return '' + this.nextItemId++;
   }
 
   createItem(info) {
@@ -51,7 +58,8 @@ class Menu {
     const values = info.slice(startOfValues);
 
     return {
-      name: info[0],
+      id: this.getItemId(),
+      name: info[0].trim(),
       nutritionalValues: {
         energyKj: values[0],
         energyCal: values[1],
@@ -65,14 +73,24 @@ class Menu {
     }
   }
 
-  save(filename = 'menu.json') {
-    fs.writeFile(filename, JSON.stringify(this.allItems.slice(1)), err => {
-      if(err) return console.log(err);
+  save(output) {
+    fs.writeFile(output, JSON.stringify(this.allItems), err => {
+      if(err) return console.error(err.message);
 
-      console.log(`File saved as '${filename}'`);
+      console.log(`File saved as '${output}'`);
     });
   }
 }
 
-const menu = new Menu(filename);
+function printUsage() {
+  console.log('node extract.js <input pdf> <output file>');
+}
+
+if(process.argv.length < 4) {
+  return printUsage();
+}
+
+const [input, output] = process.argv.slice(2);
+
+const menu = new MenuParser(input, output);
 
