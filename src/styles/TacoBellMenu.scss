@@ -1,0 +1,57 @@
+$primary: #477187;
+$secondary: #28546C;
+$accent: #A4A938;
+
+body {
+  background: #6F90A2;
+  color: white;
+  margin: 0;
+  font-family: Inconsolata;
+}
+
+.search-input {
+  background: #FFD8AA;
+  color: #333;
+  border: none;
+  padding: 0.5rem;
+  font-size: 1.3rem;
+  font-family: Inconsolata;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+}
+
+.taco-bell-menu {
+  width: 100%;
+  max-width: 70rem;
+  margin: 0 auto;
+  padding: 1rem 0.5rem 0;
+  box-sizing: border-box;
+}
+
+.nutrition-table {
+  margin-bottom: 1rem;
+  border-collapse: collapse;
+  width: 100%;
+
+  &__item, &__total, &__heading {
+    text-align: center;
+
+    td, th {
+      padding: 1rem 0.5rem;
+    }
+
+    &-name {
+      text-align: left;
+      width: 15rem;
+    }
+  }
+
+  &__heading, &__total {
+    background: $secondary;
+  }
+
+  &__item {
+    background: $primary;
+  }
+}

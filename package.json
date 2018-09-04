@@ -11,9 +11,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "css-loader": "^1.0.0",
+    "node-sass": "^4.9.3",
     "pdf.js-extract": "0.0.9",
     "react": "^16.4.2",
-    "react-dom": "^16.4.2"
+    "react-dom": "^16.4.2",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

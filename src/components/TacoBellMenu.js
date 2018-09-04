@@ -1,4 +1,6 @@
 import React, { Component, Fragment } from 'react';
+import '../styles/TacoBellMenu.scss';
+import NutritionTable from './NutritionTable';
 
 export default class TacoBellMenu extends Component {
   constructor(props) {
@@ -39,70 +41,50 @@ export default class TacoBellMenu extends Component {
     this.setState({selectedItems});
   }
 
-  renderTableRows() {
+  getSelectedItems() {
+    const {menuItems, selectedItems} = this.state;
+    const selectedItemRows = menuItems.filter(item => selectedItems.has(item.id));
+
+    return selectedItemRows;
+  }
+
+  getItems() {
     const {menuItems, search, selectedItems} = this.state;
     let itemsToShow = menuItems.filter(item => !selectedItems.has(item.id));
 
     if(search) {
       itemsToShow = itemsToShow.filter(item => {
-        return item.name.toLowerCase().includes(search.toLowerCase()) || selectedItems.has(item.id);
+        return item.name.toLowerCase().includes(search.toLowerCase());
       });
     }
 
-    const selectedItemRows = menuItems.filter(item => selectedItems.has(item.id));
-
-    return [...selectedItemRows, ...itemsToShow].map(item => {
-      const nV = item.nutritionalValues;
-      const isChecked = selectedItems.has(item.id);
-      return (
-        <tr key={item.name} className="menu-item">
-          <td>
-            <input
-              type="checkbox"
-              checked={isChecked}
-              onChange={this.toggleItem}
-              id={item.id}
-            />
-          </td>
-          <td>{item.name}</td>
-          <td>{nV.energyKj}</td>
-          <td>{nV.energyCal}</td>
-          <td>{nV.totalFat}</td>
-          <td>{nV.saturates}</td>
-          <td>{nV.salt}</td>
-          <td>{nV.carbs}</td>
-          <td>{nV.sugars}</td>
-          <td>{nV.protein}</td>
-        </tr>
-      )
-    });
+    return itemsToShow;
   }
 
   render() {
+    const {search, selectedItems} = this.state;
+
     return (
-      <Fragment>
-        <label htmlFor="search">Search:</label>
-        <input name="search" type="text" onChange={this.changeSearch} value={this.state.search} />
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-              <th>Name</th>
-              <th>Energy (kJ)</th>
-              <th>Energy (kcal)</th>
-              <th>Total Fat (g)</th>
-              <th>Saturates (g)</th>
-              <th>Salt Equivalent (g)</th>
-              <th>Carbs (g)</th>
-              <th>Sugars (g)</th>
-              <th>Protein (g)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.renderTableRows()}
-          </tbody>
-        </table>
-      </Fragment>
+      <div className='taco-bell-menu'>
+        <input
+          className="search-input"
+          type="text"
+          onChange={this.changeSearch}
+          value={search}
+          placeholder='Search'
+        />
+        <NutritionTable
+          data={this.getSelectedItems()}
+          selected={selectedItems}
+          toggleItem={this.toggleItem}
+          showTotal={true}
+        />
+        <NutritionTable
+          data={this.getItems()}
+          selected={selectedItems}
+          toggleItem={this.toggleItem}
+        />
+      </div>
     )
   }
 }
